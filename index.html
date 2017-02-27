@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Pomodoro Clock</title>
+	<meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+</head>
+
+<style>
+	.knob{
+		width: 100px;
+		height: 100px;
+		border-radius: 50%;
+		border: 5px solid black;
+		background-color: yellow;
+
+		-ms-transform: rotate(0);
+	    -ms-transform-origin: center center;
+	    -webkit-transform: rotate(0);
+        -webkit-transform-origin: center center;
+	    transform: rotate(0);
+	    transform-origin: center center;
+	}
+
+	.dot{
+		position: relative;
+		top: 4%;
+		height: 5%;
+		width: 5%;
+		margin: 0 auto;
+		border-radius: 50%;
+		background-color: black;
+	}
+
+
+</style>
+
+<body>
+
+	<div id="big-knob" class="knob">
+		<div class="dot"></div>
+	</div>
+	<div id="small-knob" class="knob">
+		<div class="dot"></div>
+	</div>
+	
+
+	<script type="text/javascript">
+
+		window.onload = function(){
+
+			var Knob = function(ref){
+				var name = ref.id;
+				var position = {
+					x: ref.offsetLeft + ref.offsetWidth,
+					y: ref.offsetTop + ref.offsetHeight
+				}; 
+				this.clicked = false;
+				this.dragged = false;
+				this.mdown = function(){
+					this.clicked = true;
+				};
+				this.mup = function(){
+					this.clicked = false;
+				};
+				this.dragged = function(e){
+					if(this.clicked)
+					{
+						var relativeX = e.pageX - position.x;
+						var relativeY = e.pageY - position.y;
+						var angle = Math.atan2(-relativeY, relativeX);
+						
+						console.log(angle * (180 / Math.PI));
+					}
+				};
+ 
+				ref.addEventListener("mousedown", this.mdown);
+				ref.addEventListener("mouseup", this.mup);  
+				ref.addEventListener("mousemove", this.dragged);
+			};
+
+			var bigKnob = new Knob(document.getElementById("big-knob"));
+			var smallKnob = new Knob(document.getElementById("small-knob"));
+		};
+
+	</script>			
+
+</body>
+
+</html>
