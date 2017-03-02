@@ -54,71 +54,62 @@
 					x: ref.offsetLeft + ref.offsetWidth / 2,
 					y: ref.offsetTop + ref.offsetHeight / 2
 				}; 
-				this.clicked = false;
-				this.dragged = false;
-				this.mdown = function(){
-					this.clicked = true;
-				};
-				this.mup = function(){
-					this.clicked = false;
-				};
-				this.dragged = function(e){
-					if(this.clicked)
+				var clicked = false;
+				var startDrag;
+				
+				function mdown(e){
+					clicked = true;
+					startDrag = getAngle({x: e.pageX, y: e.pageY});
+					console.log(startDrag);
+				}
+
+				function mup(){
+					clicked = false;
+				}
+
+				function dragging(e){
+
+					if(clicked)
 					{
-						var relativeX = position.x - e.pageX;
-						var relativeY = position.y - e.pageY;
-						var degrees = Math.round(Math.atan2(relativeY, relativeX) * (180 / Math.PI));
-						degrees -= 90;
+						var currAngle = getAngle({x: e.pageX, y: e.pageY});
+						console.log(currAngle);
 
-						if(degrees<0)
-							degrees = 360 + degrees;
-
-					    snapToPoint(degrees);
+						if(currAngle > startDrag + 3 && currAngle <= startDrag + 6)
+						{
+						    snapToPoint(startDrag + 6); 
+							startDrag += 6;
+						}
+						if(currAngle < startDrag  - 3 && currAngle >= startDrag - 6)
+						    snapToPoint(startDrag - 6);
+							startDrag -= 6;
 					}
-				};
+				}
+
+				function getAngle(coords)
+				{
+					var relativeX = position.x - coords.x;
+					var relativeY = position.y - coords.y;
+					var degrees = Math.round(Math.atan2(relativeY, relativeX) * (180 / Math.PI));
+					degrees -= 90;
+
+					if(degrees<0)
+						degrees = 360 + degrees;
+
+					return degrees;
+				}
 
 				function snapToPoint(deg)
 				{
-					var rotation = getRotation();
-
-					if(deg > rotation && deg > rotation + 3)
-						rotation += 6; 
-					if(deg < rotation && deg < rotation - 3)
-						rotation -= 6;
-
-					ref.style.webkitTransform = 'rotate('+ rotation +'deg)'; 
-				    ref.style.mozTransform = 'rotate('+ rotation +'deg)'; 
-				    ref.style.msTransform = 'rotate('+ rotation +'deg)'; 
-				    ref.style.oTransform = 'rotate('+ rotation +'deg)'; 
-				    ref.style.transform = 'rotate('+ rotation +'deg)';
-				}
-
-				function getRotation()
-				{
-					var angle; 
-					var style = window.getComputedStyle(ref, null);
-					var matrix = style.getPropertyValue("-webkit-transform") ||
-					       style.getPropertyValue("-moz-transform") ||
-					       style.getPropertyValue("-ms-transform") ||
-					       style.getPropertyValue("-o-transform") ||
-					       style.getPropertyValue("transform");
-					
-					if(matrix !== 'none') 
-					{
-						var values = matrix.split('(')[1].split(')')[0].split(',');
-						var a = values[0];
-						var b = values[1];
-					    angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
-					}
-					else
-						angle = 0;
-
-					return (angle < 0) ? angle + 360 : angle;
+					ref.style.webkitTransform = 'rotate('+ deg +'deg)'; 
+				    ref.style.mozTransform = 'rotate('+ deg +'deg)'; 
+				    ref.style.msTransform = 'rotate('+ deg +'deg)'; 
+				    ref.style.oTransform = 'rotate('+ deg +'deg)'; 
+				    ref.style.transform = 'rotate('+ deg +'deg)';
 				}
  
-				ref.addEventListener("mousedown", this.mdown);
-				ref.addEventListener("mouseup", this.mup);  
-				ref.addEventListener("mousemove", this.dragged);
+				ref.addEventListener("mousedown", mdown);
+				ref.addEventListener("mouseup", mup);  
+				ref.addEventListener("mousemove", dragging);
 			};
 
 			var bigKnob = new Knob(document.getElementById("big-knob"));
